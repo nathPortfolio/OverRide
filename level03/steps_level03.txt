@@ -1,0 +1,38 @@
+scp -P 2223 level03@localhost:level03 /home/ncardozo/Documents/OverRide
+
+strings level03
+
+Congratulations!
+/bin/sh
+
+Found in decompiler :
+
+  if ( strcmp((const char *)v4, "Congratulations!") == 0 )
+    return system("/bin/sh");
+
+  __isoc99_scanf("%d", &savedregs);
+  test(savedregs, 322424845);
+
+Test fonction will check if the result of 322424845 - the entered number 
+is in some ranges, if it is it will call decrypt with it as argument
+
+Decrypt will use this result to make a XOR operation on a string contained
+in a v4 buffer using the argument as the decryption key
+
+If the result of the decryption is equal to "Congratulations!" we're done !
+
+python -c '
+enc = "Q}|u`sfg~sf{}|a3"
+print "with key 16:", "".join(chr(ord(c) ^ 18) for c in enc)
+print "with key 17:", "".join(chr(ord(c) ^ 18) for c in enc)
+print "with key 18:", "".join(chr(ord(c) ^ 16) for c in enc)
+print "with key 19:", "".join(chr(ord(c) ^ 18) for c in enc)
+'
+
+So the key is 18
+
+322424845 - 18 = 322424827
+
+(echo "322424827"; cat) | ./level03
+
+cat /home/users/level04/.pass

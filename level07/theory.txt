@@ -1,0 +1,15 @@
+In computer science, the term “arbitrary write primitive” refers to a 
+post-exploitation capability that allows an attacker to write arbitrary 
+bytes to specific memory addresses or files controlled by the attacker.
+
+It is not a vulnerability in and of itself, but rather a capability that 
+arises from flaws such as heap corruption or insecure deserialization, 
+allowing an attacker to alter function pointers, startup scripts, or 
+critical configurations to achieve code execution or privilege escalation.
+
+Mechanism: Full control over the destination (where to write) and the 
+content (what data to write).
+Impact: Turns logical or memory flaws into persistent control over 
+the system, compromising the integrity of software and configurations.
+Defense: Mitigated through strict input validation, memory safety, 
+and process privilege limits.

