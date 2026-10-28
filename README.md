@@ -1,6 +1,6 @@
 # Override
 
-> Binary exploitation wargame
+> Binary exploitation wargame.
 > A [42](https://42.fr) security project focused on exploiting ELF binaries on an i386 system.
 
 ---
